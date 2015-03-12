@@ -21,6 +21,9 @@ except ImportError:
 API = "YouDaoCV"
 API_KEY = "659600698"
 
+BAIDU_KEY = "gzQVCnojVuzaT4Gr2MOlcDSH"
+
+
 
 class Colorizing(object):
     colors = {
@@ -82,6 +85,19 @@ def online_resources(query):
             for lang, url in res_list if lang.match(query) is not None]
 
 
+def print_baidu_explanation(data, options):
+    _c = Colorizing.colorize
+    _d = data
+
+    if 'error_code' in _d:
+        print(_c('Sorry, baidu cannot find the translate result for you', 'red'))
+    else:
+        result = _d['trans_result']
+    for element in result:
+            print(_c(element['dst'], 'yellow'))
+    print()
+
+
 def print_explanation(data, options):
     _c = Colorizing.colorize
     _d = data
@@ -140,12 +156,24 @@ def print_explanation(data, options):
 
 
 def lookup_word(word):
-    word = quote(word)
-    data = urlopen(
+    if options.j_to_c is True:
+        data = urlopen(
+        "http://openapi.baidu.com/public/2.0/bmt/translate?"
+        "client_id={0}&q={1}&from=jp&to=zh"
+        .format(BAIDU_KEY, word)).read().decode("utf-8")
+        print_baidu_explanation(json.loads(data), options)
+    elif options.c_to_j is True:
+        data = urlopen(
+        "http://openapi.baidu.com/public/2.0/bmt/translate?"
+        "client_id={0}&q={1}&from=zh&to=jp"
+        .format(BAIDU_KEY, word)).read().decode("utf-8")
+        print_baidu_explanation(json.loads(data), options)
+    else:
+        data = urlopen(
         "http://fanyi.youdao.com/openapi.do?keyfrom={0}&"
         "key={1}&type=data&doctype=json&version=1.1&q={2}"
         .format(API, API_KEY, word)).read().decode("utf-8")
-    print_explanation(json.loads(data), options)
+        print_explanation(json.loads(data), options)
 
 
 if __name__ == "__main__":
@@ -160,6 +188,14 @@ if __name__ == "__main__":
                         default=False,
                         help="only show explainations. "
                              "argument \"-f\" will not take effect")
+    parser.add_argument('-jc', '--j_to_c',
+                        action='store_true',
+                        default=False,
+                        help="translate Japanese to Chinese")
+    parser.add_argument('-cj', '--c_to_j',
+                        action='store_true',
+                        default=False,
+                        help="translate Chinese to Janpanes")
     parser.add_argument('--color',
                         choices=['always', 'auto', 'never'],
                         default='auto',
