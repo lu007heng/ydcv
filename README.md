@@ -7,3 +7,4 @@ Simple wrapper for Youdao online translate (Chinese <-> English) service [API](h
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/felixonmars/ydcv/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
+
